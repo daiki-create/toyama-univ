@@ -1,5 +1,5 @@
 # 目的：地震加速度波形からマグニチュード6 or 7を分類（分類）
-# 入力データ：地震加速度波形
+# 入力データ：フーリエ変換した地震加速度波形
 # 正解データ：マグニチュード6 or 7
 
 import numpy as np
@@ -162,13 +162,20 @@ print('標準化済み----------------------------------------------------')
 # print(input_offset)
 # print(len(input_offset[0]))
 
-print("len(1)=",len(input_offset[1]))
-print("len(2)=",len(input_offset[2]))
+# print("len(1)=",len(input_offset[1]))
+# print("len(2)=",len(input_offset[2]))
 
 
 
 lat_lon_input=input_offset
 lat_lon_input=np.array(lat_lon_input)
+print(lat_lon_input)
+
+print('フーリエ変換----------------------------------------------------')
+fft_data = np.abs(np.fft.rfft(lat_lon_input))
+lat_lon_input = fft_data
+print(fft_data)
+
 # lat_lon_input=np.array(lat_lon_input)
 #初めて1以上が現れるまで要素を削除し続ける。
 #1以上が現れたらbreakする。
@@ -288,17 +295,18 @@ print("len correct_test=",len(correct_test))
 
 print('==============================================================')
 #波形プロット
-# i=0
-# for it in input_train:
-#     if correct_train[i][1]==1:
-#         title='input_train：M7'
-#     else:
-#         title='input_train：M6'
-#     plt.plot(it)
-#     plt.title(title)
-#     plt.legend()
-#     plt.show()
-#     i+=1
+i=0
+for it in input_train:
+    if correct_train[i][1]==1:
+        title='input_train：M7'
+    else:
+        title='input_train：M6'
+    plt.plot(it)
+    plt.title(title)
+    plt.legend()
+    plt.show()
+    i+=1
+exit()
 
 # i=0
 # for it in input_test:
@@ -334,6 +342,7 @@ print('訓練データ数=',n_train)
 # print('テストデータ数----------------------------------------------------')
 print('テストデータ数=',n_test)
 
+n_in = 3001
 # n_in=sum_min
 # n_mid=300
 # n_mid=100
@@ -513,7 +522,6 @@ def get_error(t,batch_size):
     print(np.log(output_layer.y+1e-7))
     print(t)
     print(len(t))
-    exit()
     return -np.sum(t*np.log(output_layer.y+1e-7))/batch_size
 
 train_error_x=[]
