@@ -6,7 +6,7 @@ import glob
 
 # ===========================================================================================================================================
 # 使用データファイルの取得
-files = glob.glob("../datasets/tsunami/tsunami/2/*")
+files = glob.glob("../datasets/tsunami/2/*")
 
 
 # ===========================================================================================================================================
@@ -17,9 +17,9 @@ tsunami_data = []
 data_row = []
 i = 0
 for file in files:
-    f=open(file,'r')
+    f = open(file,'r')
     while True:
-        data=f.readline()
+        data = f.readline()
         if data == '':
             break
         if 'seisic_lat,seismic_lon,seismic_dis(1-3s,3-9s,9-27s,27-81s,cm),tsunami_lat,tsunami_lon,tsunami_h(m),distance(km)' in data:
