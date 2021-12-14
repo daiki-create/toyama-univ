@@ -1,4 +1,4 @@
-# 目的：地震加速度波形から津波の高さを推測（回帰）
+# 目的：最大振幅から津波の高さを推測（回帰）
 # 入力データ：地震加速度波形の最大振幅・・・バンドパスフィルター済み
 # 　　　　　　訓練：テスト＝８：２
 # 正解データ：津波の高さ
@@ -11,7 +11,7 @@ import random
 
 # ===========================================================================================================================================
 # 使用データファイルの取得
-files = glob.glob("../datasets/tsunami/2/*")
+files = glob.glob("../datasets/tsunami/4/merged.dat_b4.2016")
 
 
 # ===========================================================================================================================================
@@ -27,48 +27,33 @@ for file in files:
         data=f.readline()
         if data == '':
             break
-        if 'seisic_lat,seismic_lon,seismic_dis(1-3s,3-9s,9-27s,27-81s,cm),tsunami_lat,tsunami_lon,tsunami_h(m),distance(km)' in data:
+        if 'lat,lon,st_lat,st_lon,1-3s,3-9s,9-27s,27-81s,tsunami_h(m),date' in data:
             while True:
                 data2 = f.readline()
                 if data2 == '':
                     break
-                data3 = data2.split()
+                data3 = data2.split(",")
+                if data3[4] != 'null':
+                    seismic_dis1 = float(data3[4])
+                    seismic_dis2 = float(data3[5])
+                    seismic_dis3 = float(data3[6])
+                    seismic_dis4 = float(data3[7])
+                    tsunami_h = float(data3[8])
+                    data3_list = [seismic_dis1 ,seismic_dis2 ,seismic_dis3 ,seismic_dis4 ,tsunami_h]
+                    tsunami_data.append(data3_list)
 
-                seismic_lat = data3[0].split(',')[0]
-                seismic_lon = data3[0].split(',')[1]
-                seismic_dis1 = float(data3[1].split(',')[0])
-                seismic_dis2 = float(data3[2].split(',')[0])
-                seismic_dis3 = float(data3[3].split(',')[0])
-                seismic_dis4 = float(data3[4].split(',')[0])
-                tsunami_lat = data3[5].split(',')[0]
-                tsunami_lon = data3[5].split(',')[1]
-                tsunami_h = float(data3[6].split(',')[0])
-                distance = data3[7]
-                new_data3 = [seismic_lat ,seismic_lon ,seismic_dis1 ,seismic_dis2 ,seismic_dis3 ,seismic_dis4 ,tsunami_lat ,tsunami_lon ,tsunami_h ,distance]
-
-                tsunami_data.append(new_data3)
 # ---------------------------------------------------------------------------------------------------------------------------------
 # 津波の高さ(正解データ)をリスト化
 correct_data = []
 for t in tsunami_data:
-    correct_data.append([t[8]])
+    correct_data.append([t[4]])
 
 # ===========================================================================================================================================
 # 入力データ
 input_data = []
 for t in tsunami_data:
-    input_data.append([t[2], t[3], t[4], t[5]])
-# ---------------------------------------------------------------------------------------------------------------------------------
-#入力データを標準化
-input_data_offset = []
-# for i in input_data:
-ave_input = np.average(input_data ,axis = 0)
-std_input = np.std(input_data ,axis = 0)
-input_data = (input_data - ave_input) / std_input
-# input_data_offset.append(i)
-# input_data = input_data_offset
-# print(input_data)
-# exit()
+    input_data.append([t[0], t[1], t[2], t[3]])
+
 
 # ===========================================================================================================================================
 # 訓練データとテストデータに分ける(訓練：テスト＝８：２)

@@ -1,37 +1,118 @@
-# ⓶
-#     0.UDファイル名リストを取得[files_ud]
-#     1.潮汐ファイルをopen[f_tide]
-#     2.行を変数に格納(while True)[line]
-#     3.スプリットでlat,lon,st_lat,st_lon,dateを変数に格納[lat,lon,st_lat,st_lon,data]
-#     //4.潮汐ファイルをclose
-#     6.リストの中から7~16文字目（年～分の10の位）がdateと一致するファイル名のリストを変数に格納[files_ud_match_date]
-#     8.リストのUDファイルをopen（whie True）[f_ud]
-#     8.lat,lon,st_lat,st_lonを変数(接頭文字k-)に格納（それぞれ小数第二位までの浮動小数を取得）[k-lat,k-lon,k-st_lat,k-st_lon,k-data]
-#     　→ 潮汐データ側の小数第二位が繰り上がっている可能性があるので、小数第一位に変更する可能性あり
-#     9a.各緯度経度が一致している場合、memo下のリスト（地震波）を変数に格納[sesmic_a]
-#         標準化[sesmic_a_offset]
-#         フーリエ変換[sesmic_a_fourier]
-#         2階積分して変位にする[sesmic_x_fourier]
-#         1.周波数1-3s,3-9s,9-27s,27-81sでカットしてをかけてそれぞれのリストを変数に格納[sesmic_x_fourier_1_3,・・]
-#         それぞれ時間領域に逆変換[sesmic_x_1_3,・・]
-#         2.それぞれのリストの最大値を変数に格納[sesmic_x_max_1_3,・・]
-#         3.UDファイルをclose
-#         //4.先ほどcloseした潮汐ファイルをopen
-#         5.5~8列目に9a-2で取得した変数を記入
-#         //6.breakで2に戻る
-#     9b.各緯度経度が一致していない場合、UDファイルをclose
-#         //してbreakで8に戻る
-
-# 目的：潮汐データファイルにバンドパスフィルタをかけた地震波の振幅最大値を収めること
+# 目的：1998年の潮汐データファイルにバンドパスフィルタをかけた地震波の振幅最大値を収めること
 
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
 import random
+import time
+# import warnings
 
-files_tide = glob.glob("../../datasets/tsunami/3/merged.dat_b4.1998")
-files_ud = glob.glob("../../datasets/mag/datasets_ud/*")
-print(files_ud)
-print(len(files_ud))
-print(files_ud[0])
-print(files_ud[0][38:46])
+# warnings.filterwarnings('ignore') 
+
+files_tide_pass = glob.glob("../../datasets/tsunami/3/*")
+files_ud_pass = glob.glob("../../datasets/mag/datasets_ud/*")
+
+for ftp in files_tide_pass:
+    ft = open(ftp,"r")
+    while True:
+        line_t = ft.readline()
+        if line_t == "":
+            break
+        if "lat,lon,st_lat,st_lon,1-3s,3-9s,9-27s,27-81s,tsunami_h(m),date" in line_t:
+            while True:
+                line_t2 = ft.readline()
+                if line_t2 == "":
+                    break
+                data_t = line_t2.split(",")
+                # リストの中から年～日がdateと一致するファイル名のリストを変数に格納
+                files_ud_match_date = []
+                for fup in files_ud_pass:
+                    if fup[37:43] == data_t[9][0:6]:
+                        files_ud_match_date.append(fup)                                      
+                # 日時の一致するUDファイルがなければnullを挿入
+                data_t[4] = "null"
+                data_t[5] = "null"
+                data_t[6] = "null"
+                data_t[7] = "null"
+                if len(files_ud_match_date) == 0:
+                    data_t_insert = str(data_t[0]) + "," +str(data_t[1]) + "," + str(data_t[2]) + "," + str(data_t[3]) + "," + str(data_t[4]) + "," + str(data_t[5]) + "," + str(data_t[6]) + "," + str(data_t[7]) + "," + str(data_t[8]) + "," + str(data_t[9])
+                    with open("../../datasets/tsunami/4/merged.dat_b4.1998", mode="a", encoding="utf-8") as f:
+                        f.write("\n"+data_t_insert)
+                # 日時の一致するUDファイルがあれば・・
+                else:
+                    for fumd in files_ud_match_date:
+                        fu = open(fumd,"r")
+                        while True:
+                            line_u = fu.readline()
+                            if line_u == "":
+                                break
+                            if "Lat." in line_u:
+                                lat = float(line_u[19-1:30][0:2])
+                            if "Long." in line_u:
+                                lon = float(line_u[19-1:30][0:2])
+                            if "Station Lat." in line_u:
+                                st_lat = float(line_u[19-1:30][0:2])
+                            if "Station Long." in line_u:
+                                st_lon = float(line_u[19-1:30][0:2])
+                        fu.close()
+                        # 震源と観測点が一致
+                        if (int(data_t[0][0:2])-2 <= lat <= int(data_t[0][0:2])+2) and (int(data_t[1][0:2])-2 <= lon <= int(data_t[1][0:2])+2) and (int(data_t[2][0:2])-2 <= st_lat <= int(data_t[2][0:2])+2) and (int(data_t[3][0:2])-2 <= st_lon <= int(data_t[3][0:2])+2):
+                            fu = open(fumd,"r")
+                            sesmic_a = []
+                            while True:
+                                line_u2 = fu.readline()
+                                if line_u2 == "":
+                                    break
+                                if "Memo." in line_u2:
+                                    while True:
+                                        line_u_memo = fu.readline()
+                                        if line_u_memo == "":
+                                            break
+                                        sesmic_a_list = line_u_memo.split()
+                                        for sal in sesmic_a_list:
+                                            sesmic_a.append(float(sal))
+                                    # オフセット
+                                    ave_sa=np.average(sesmic_a)
+                                    sesmic_a = sesmic_a - ave_sa
+                                    # フーリエ変換
+                                    srate = 100
+                                    # rfftは複素共役を省略
+                                    # fftは省略なし
+                                    fft_data = np.fft.rfft(sesmic_a)
+                                    freqList = np.fft.fftfreq(len(fft_data), 1.0 / srate)
+                                    # 積分して変位にする
+                                    index = np.where(freqList > 0)
+                                    for i in index:
+                                        omega0 = 2.0 * np.pi * freqList[i] * (0 + 1j)
+                                        fft_data[i] = fft_data[i] / omega0 / omega0
+                                    f_cut_low = [1/3, 1/9, 1/27]
+                                    f_cut_high = [1/1, 1/3, 1/9]
+                                    for i in range(3):
+                                        fft_data_cppy = np.fft.rfft(sesmic_a)
+                                        freqList = np.fft.fftfreq(len(fft_data_cppy), 1.0 / srate)
+                                        index = np.where(freqList > 0)
+                                        for j in index:
+                                            omega0 = 2.0 * np.pi * freqList[j] * (0 + 1j)
+                                            fft_data_cppy[j] = fft_data_cppy[j] / omega0 / omega0
+                                        # plt.plot(np.real(fft_data))
+                                        # plt.show()
+                                        index2 = np.where(freqList < f_cut_low[i])
+                                        for j in index2:
+                                            fft_data_cppy[j] = 0
+                                        index3 = np.where(freqList > f_cut_high[i])
+                                        for j in index3:
+                                            fft_data_cppy[j] = 0
+                                        irfft_data = np.fft.irfft(fft_data_cppy)
+                                        max_fft_data = max(irfft_data)
+                                        data_t[i+4] = max_fft_data
+                                        # plt.plot(np.real(irfft_data))
+                                        # plt.show()
+                            print("\nmatch lat and lon!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                            print("k-net:" + str(lat) + ",潮汐:" + str(data_t[0][0:2]))
+                            break
+                        else:
+                            print("\nnot match")
+                            print("k-net:" + str(lat) + ",潮汐:" + str(data_t[0][0:2]))
+                    data_t_insert = str(data_t[0]) + "," +str(data_t[1]) + "," + str(data_t[2]) + "," + str(data_t[3]) + "," + str(data_t[4]) + "," + str(data_t[5]) + "," + str(data_t[6]) + "," + str(data_t[7]) + "," + str(data_t[8]) + "," + str(data_t[9])
+                    with open("../../datasets/tsunami/4/merged.dat_b4.1998", mode="a", encoding="utf-8") as f:
+                        f.write(data_t_insert)
