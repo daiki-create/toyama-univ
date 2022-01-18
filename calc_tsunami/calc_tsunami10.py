@@ -83,14 +83,14 @@ for file in files:
                 # if tsunami_h >= 10:
                 # リアス式海岸の場合、振幅を1.5倍とみなす
 
-                if 42.8 <= st_lat <= 43.2 and 144.0 <= st_lon <= 144.5 :
-                    tsunami_h = tsunami_h / 10
-                elif 43.0 <= st_lat <= 43.3 and 144.3 <= st_lon <= 145.2 :
-                    tsunami_h = tsunami_h / 10
-                elif 33.5 <= st_lat <= 33.9 and 135.9 <= st_lon <= 136.1 :
-                    tsunami_h = tsunami_h / 2
-                elif 38.1 <= st_lat <= 38.5 and 140.8 <= st_lon <= 141.0 :
-                    tsunami_h = tsunami_h / 3
+                # if 42.8 <= st_lat <= 43.2 and 144.0 <= st_lon <= 144.5 :
+                #     tsunami_h = tsunami_h / 10
+                # elif 43.0 <= st_lat <= 43.3 and 144.3 <= st_lon <= 145.2 :
+                #     tsunami_h = tsunami_h / 10
+                # elif 33.5 <= st_lat <= 33.9 and 135.9 <= st_lon <= 136.1 :
+                #     tsunami_h = tsunami_h / 2
+                # elif 38.1 <= st_lat <= 38.5 and 140.8 <= st_lon <= 141.0 :
+                #     tsunami_h = tsunami_h / 3
 
                 data3_list = [seismic_dis1 ,seismic_dis2 ,seismic_dis3 ,tsunami_h]
                 tsunami_data.append(data3_list)
