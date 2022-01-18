@@ -11,19 +11,19 @@ import glob
 
 #基本は震源だけでいい
 #36,37からでいい、日本海溝沿いから
-min_ev_lat=38
-max_ev_lat=42
+min_ev_lat=37
+max_ev_lat=41
 min_ev_lon=138
 max_ev_lon=145
 
 #datasetsから拡張子UDのみを選択してdatasets_udに格納
 # new_path = "datasets_ud"
-new_path2="datasets_ud_lat_tohoku"
+# new_path2="datasets_ud_lat_tohoku"
 # new_path3="datasets_ud_tohoku"
 # if not os.path.exists(new_path):
     # os.mkdir(new_path)
-if not os.path.exists(new_path2):
-    os.mkdir(new_path2)
+# if not os.path.exists(new_path2):
+#     os.mkdir(new_path2)
 # if not os.path.exists(new_path3):
 #     os.mkdir(new_path3)
 
@@ -61,22 +61,22 @@ if not os.path.exists(new_path2):
 #                 print('東北じゃない')
 #                 break           
 
-files=glob.glob("datasets_ud_lat_tohoku/*")
+files=glob.glob("../../datasets/mag/datasets_ud/*")
 for file in files:
     f=open(file,'r')
     while True:
         data=f.readline()
-        if 'Long.' in data:
+        if data == "":
+            break
+        if 'Lat.' in data:
+            ev_lat = float(data[19-1:30])
+        elif 'Long.' in data:
             ev_lon = float(data[19-1:30])
-            print(ev_lon)
-            if(ev_lon >= min_ev_lon and ev_lon<=max_ev_lon):
-                print('東北です!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                f.close() 
-                shutil.move(file,'datasets_ud_tohoku')
-                break
-            else:
-                f.close()
-                print('東北じゃない')
-                break
+    f.close()
+    if(min_ev_lon <= ev_lon <= max_ev_lon and min_ev_lat <= ev_lat <= max_ev_lat):
+        print('東北です!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        shutil.move(file,'../../datasets/mag/datasets_ud_tohoku')
+    else:
+        print('東北じゃない')
         
 print('ok')

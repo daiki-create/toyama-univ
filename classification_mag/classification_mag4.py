@@ -9,10 +9,8 @@ import random
 
 #データ処理
 #拡張子がUDのファイルの震源地、マグニチュードを配列に格納
-# files=glob.glob("datasets_test/*")
-# files=glob.glob("datasets_test2/*")
-files=glob.glob("../datasets/mag/datasets_use2/*")
-# files=glob.glob("datasets_use3/*")
+files=glob.glob("../datasets/mag/datasets_plot/*")
+# files=glob.glob("../datasets/mag/datasets_use2/*")
 n_in=6000
 
 
@@ -172,9 +170,9 @@ lat_lon_input=np.array(lat_lon_input)
 print(lat_lon_input)
 
 print('フーリエ変換----------------------------------------------------')
-fft_data = np.abs(np.fft.rfft(lat_lon_input))
-lat_lon_input = fft_data
-print(fft_data)
+# fft_data = np.abs(np.fft.rfft(lat_lon_input))
+# lat_lon_input = fft_data
+# print(fft_data)
 
 # lat_lon_input=np.array(lat_lon_input)
 #初めて1以上が現れるまで要素を削除し続ける。
@@ -262,7 +260,7 @@ for im7 in indexes_m7:
     i+=1
     print("i=",i)
     #if i>=9:
-    if i>=90:    
+    if i>=132*4/5:
         input_test.append(lat_lon_input[im7])
         correct_test.append(lat_lon_correct[im7])
         mag_test.append(mag[im7])
@@ -275,7 +273,7 @@ for im6 in indexes_m6:
     j+=1
     print("j=",j)    
     #if j>=9:
-    if j>=90:    
+    if j>=132*4/5:    
         input_test.append(lat_lon_input[im6])
         correct_test.append(lat_lon_correct[im6])
         mag_test.append(mag[im6])
@@ -291,35 +289,36 @@ print("len correct_test=",len(correct_test))
 # print(input_test)
 # print(correct_train)
 # print(correct_test)
+# exit()
 
 
-print('==============================================================')
-#波形プロット
+# print('==============================================================')
+# #波形プロット
 i=0
 for it in input_train:
     if correct_train[i][1]==1:
-        title='input_train：M7'
+        title='input_train:M7'
     else:
-        title='input_train：M6'
+        title='input_train:M6'
     plt.plot(it)
     plt.title(title)
     plt.legend()
     plt.show()
     i+=1
-exit()
 
-# i=0
-# for it in input_test:
-#     if correct_test[i][1]==1:
-#         title='input_test M7'
-#     else:
-#         title='input_test M6'
-#     plt.plot(it)
-#     plt.title(title)
-#     plt.legend()
-#     plt.show()
-#     i+=1
-# print('plot end')
+i=0
+for it in input_test:
+    if correct_test[i][1]==1:
+        title='input_test:M7'
+    else:
+        title='input_test:M6'
+    plt.plot(it)
+    plt.title(title)
+    plt.legend()
+    plt.show()
+    i+=1
+print('plot end')
+exit()
 # print('===============================================================')
 # input_train=lat_lon_input[:int(select_num//2)]
 # input_test=lat_lon_input[int(select_num//2):]
@@ -342,7 +341,7 @@ print('訓練データ数=',n_train)
 # print('テストデータ数----------------------------------------------------')
 print('テストデータ数=',n_test)
 
-n_in = 3001
+# n_in = 3000
 # n_in=sum_min
 # n_mid=300
 # n_mid=100

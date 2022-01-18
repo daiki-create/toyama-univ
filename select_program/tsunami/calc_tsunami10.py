@@ -1,46 +1,132 @@
 # 目的：最大振幅から津波の高さを推測（回帰）
-# 入力データ：地震加速度波形の最大振幅・・・バンドパスフィルター済み
-# 　　　　　　訓練：テスト＝８：２
-# 正解データ：津波の高さ
+# 入力データ：地震加速度波形の最大振幅・・・バンドパスフィルター済み1つと震央距離
+# 　　　　　　訓練：テスト＝8:2
+# 正解データ：津波の高さ。低いものは使用しない。
 # 正解と出力をプロット
+# 勝間田教授のoutファイル14個を使用
+#
+# 地形による補正をする
+# 2011データは省く
+# 震央距離はオフセットをとる
+# 最大振幅は対数を取る・・スケールの小さい部分を拡大する
+# 震央距離は負にする
 
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
 import random
+import math
+import time
 
 # ===========================================================================================================================================
 # 使用データファイルの取得
-files = glob.glob("../datasets/tsunami/4/merged.dat_b4.2016")
+# files = glob.glob("../../datasets/tsunami/omit_2011/*")
+files = glob.glob("../../datasets/tsunami/m7_omit_2011/*")
 
+# ＊１（75行目）ファイル初期化
+f_reset = open("../../datasets/tsunami/6/data","w")
+f_reset.write("")
 
 # ===========================================================================================================================================
 # 正解データ
 # ---------------------------------------------------------------------------------------------------------------------------------
 # 津波データ全体をリスト化
 tsunami_data = []
-data_row = []
+dis_list = []
+sesmic_dis1_list = []
+sesmic_dis2_list = []
+sesmic_dis3_list = []
 i = 0
 for file in files:
     f=open(file,'r')
+    j = 0
     while True:
         data=f.readline()
+        j += 1
         if data == '':
             break
-        if 'lat,lon,st_lat,st_lon,1-3s,3-9s,9-27s,tsunami_h(cm),date' in data:
+        if j == 1:
             while True:
                 data2 = f.readline()
                 if data2 == '':
                     break
                 data3 = data2.split(",")
                 if data3[4] != 'null':
+                    lat = float(data3[0])
+                    lon = float(data3[1])
+                    st_lat = float(data3[2])
+                    st_lon = float(data3[3])
                     seismic_dis1 = float(data3[4])
                     seismic_dis2 = float(data3[5])
                     seismic_dis3 = float(data3[6])
                     tsunami_h = float(data3[7])
+                    
+                    pole_radius = 6356752.314245 # 極半径
+                    equator_radius = 6378137.0 # 赤道半径
+
+                    lat_rad = math.radians(lat)
+                    lon_rad = math.radians(lon)
+                    st_lat_rad = math.radians(st_lat)
+                    st_lon_rad = math.radians(st_lon)
+                    
+                    lat_difference = lat_rad - st_lat_rad # 緯度差
+                    lon_difference = lon_rad - st_lon_rad # 経度差
+                    lat_average = (lat_rad + st_lat_rad) / 2 # 平均緯度
+
+                    e2 = (math.pow(equator_radius, 2) - math.pow(pole_radius, 2)) / math.pow(equator_radius, 2) # 第一離心率^2
+                    w = math.sqrt(1- e2 * math.pow(math.sin(lat_average), 2))
+                    m = equator_radius * (1 - e2) / math.pow(w, 3) # 子午線曲率半径
+                    n = equator_radius / w # 卯酉線曲半径
+                    dis = math.sqrt(math.pow(m * lat_difference, 2) + math.pow(n * lon_difference * math.cos(lat_average), 2)) / 1000# 距離計測
+                    # if 100 <= dis <= 200:
+                    # if tsunami_h >= 10:
+                    # リアス式海岸の場合、振幅を1.5倍とみなす
+                        # if 38.448 < lat < 39.560:
+                        #     seismic_dis1 = seismic_dis1 *1.5
+                        #     seismic_dis2 = seismic_dis2 *1.5
+                        #     seismic_dis3 = seismic_dis3 *1.5
                     data3_list = [seismic_dis1 ,seismic_dis2 ,seismic_dis3 ,tsunami_h]
                     tsunami_data.append(data3_list)
+                    dis_list.append(dis)
+                    sesmic_dis1_list.append(seismic_dis1)
+                    sesmic_dis2_list.append(seismic_dis2)
+                    sesmic_dis3_list.append(seismic_dis3)
+                    # ＊１使用した震央距離と最大振幅と津波高さを別ファイルに出力
+                    f2 = open("../../datasets/tsunami/6/data","a")
+                    f2.write("\n"+str(lat)+"    "+str(lon)+"    "+str(st_lat)+"    "+str(st_lon)+"    "+str(dis)+"    "+str(seismic_dis1)+"   "+str(seismic_dis2)+"    "+str(seismic_dis3)+"   "+str(tsunami_h))
+exit()
+# ===========================================================================================================================================
+# データの前処理
+# ---------------------------------------------------------------------------------------------------------------------------------
+# 震央距離にオフセットを取って負にする
+ave_dis = np.average(dis_list,axis=0)
+std_dis = np.std(dis_list,axis=0)
+dis_list = (dis_list - ave_dis) / std_dis
+# ---------------------------------------------------------------------------------------------------------------------------------
+# 震央距離に対数を取って負にする
+# dis = -np.log(dis)
+# ---------------------------------------------------------------------------------------------------------------------------------
+# 最大振幅にオフセットを取る
+ave_sesmic_dis1 = np.average(sesmic_dis1_list,axis=0)
+std_sesmic_dis1 = np.std(sesmic_dis1_list,axis=0)
+sesmic_dis1_list = (sesmic_dis1_list - ave_sesmic_dis1) / std_sesmic_dis1
 
+ave_sesmic_dis2 = np.average(sesmic_dis2_list,axis=0)
+std_sesmic_dis2 = np.std(sesmic_dis2_list,axis=0)
+sesmic_dis2_list = (sesmic_dis2_list - ave_sesmic_dis2) / std_sesmic_dis2
+
+ave_sesmic_dis3 = np.average(sesmic_dis3_list,axis=0)
+std_sesmic_dis3 = np.std(sesmic_dis3_list,axis=0)
+sesmic_dis3_list = (sesmic_dis3_list - ave_sesmic_dis3) / std_sesmic_dis3
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# 最大振幅に対数を取る
+# sesmic_dis1_list = np.log(sesmic_dis1_list)
+# sesmic_dis2_list = np.log(sesmic_dis2_list)
+# sesmic_dis3_list = np.log(sesmic_dis3_list)
+
+print(len(tsunami_data))
+time.sleep(2)
 # ---------------------------------------------------------------------------------------------------------------------------------
 # 津波の高さ(正解データ)をリスト化
 correct_data = []
@@ -50,12 +136,17 @@ for t in tsunami_data:
 # ===========================================================================================================================================
 # 入力データ
 input_data = []
+i = 0
 for t in tsunami_data:
-    input_data.append([t[0], t[1], t[2]])
+    input_data.append([sesmic_dis1_list[i], sesmic_dis2_list[i], sesmic_dis3_list[i]])
+    # input_data.append([sesmic_dis1_list[i], sesmic_dis2_list[i], sesmic_dis3_list[i]])
+    # input_data.append([dis_list[i], sesmic_dis1_list[i], sesmic_dis2_list[i]])
+    # input_data.append([dis_list[i], sesmic_dis1_list[i]])
+    i += 1
 
 
 # ===========================================================================================================================================
-# 訓練データとテストデータに分ける(訓練：テスト＝８：２)
+# 訓練データとテストデータに分ける(訓練：テスト＝8:2)
 # (リストは配列に変換)
 index = list(range(len(input_data)))
 random.shuffle(index)
@@ -75,18 +166,16 @@ n_train = len(input_train)
 n_test = len(input_test)
 
 
-
 # ===========================================================================================================================================
 # ===========================================================================================================================================
 # ハイパーパラメータの定義
 n_in = len(input_train[0])
 n_mid = 25
 n_out = 1
-wb_width = 0.1
-#下げてみる？
+wb_width = 0.01
 eta = 0.01
-epoch = 10
-batch_size = 4
+epoch = 4000
+batch_size = 1
 interval = epoch / 10
 
 
@@ -106,28 +195,46 @@ class MiddleLayer(BaseLayer):
         self.x = x
         u = np.dot(x ,self.w) + self.b
         self.y = 1 / (1 + np.exp(-u))
-        print("Middle Forward")
+        # print(x[0])
+        # print(len(x))
+        # print(self.w[0])
+        # print(len(self.w))
+        # print(u[0])
+        # print(len(u))
+        # print(self.y[0])
+        # print(len(self.y))
+        # print("Middle Forward")
     
     def backward(self ,grad_y):
         delta = grad_y * (1 - self.y) * self.y
         self.grad_w = np.dot(self.x.T ,delta)
         self.grad_b = np.sum(delta ,axis = 0)
         self.grad_x = np.dot(delta ,self.w.T)
-        print("Middle Back")
+        # print(self.x.T)
+        # print(len(self.x.T))
+        # print(self.grad_w)
+        # print(len(self.grad_w))
+        # print(self.grad_b)
+        # print(len(self.grad_b))
+        # exit()
+        # print("Middle Back")
 
 class OutputLayer(BaseLayer):
     def forward(self ,x):
         self.x = x
         u = np.dot(x ,self.w) + self.b
         self.y = u
-        print("Out Forward")
+        # print("Out Forward")
 
     def backward(self ,t):
         delta = self.y - t
         self.grad_w = np.dot(self.x.T ,delta)
         self.grad_b = np.sum(delta ,axis=0)
         self.grad_x = np.dot(delta ,self.w.T)
-        print("Out Back")
+        # print(self.x.T)
+        # print(self.grad_w)
+        # print(self.grad_b)
+        # print("Out Back")
 
 
 

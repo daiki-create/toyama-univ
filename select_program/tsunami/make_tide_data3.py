@@ -8,13 +8,16 @@ import matplotlib.pyplot as plt
 import glob
 import random
 import time
+import shutil
 # import warnings
 
 # warnings.filterwarnings('ignore') 
 
 files_tide_pass = glob.glob("../../datasets/tsunami/3/merged.dat_b4.2016")
-# datasets_ud.zipを解凍してください。
 files_ud_pass = glob.glob("../../datasets/mag/1611220559/*")
+
+# 震源も観測点も一致するk-netデータを格納するリスト
+match_1611220559 = []
 
 for ftp in files_tide_pass:
     ft = open(ftp,"r")
@@ -122,6 +125,7 @@ for ftp in files_tide_pass:
                                             # plt.plot(np.real(irfft_data))
                                             # plt.show()
                                 print("\nmatch lat and lon!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                match_1611220559.append(fumd)
                                 break
                             else:
                                 print("\nしかし観測点は不一致")
@@ -129,7 +133,14 @@ for ftp in files_tide_pass:
                         else:
                             print("\n観測点すら不一致")
                             print("k-net:" + str(lat) + "," + str(lon) + "\n潮汐:" + str(data_t[0][0:4]) + "," + str(data_t[1][0:5]))
+
+                    # 行データを形成
                     data_t_insert = str(data_t[0]) + "," +str(data_t[1]) + "," + str(data_t[2]) + "," + str(data_t[3]) + "," + str(data_t[4]) + "," + str(data_t[5]) + "," + str(data_t[6]) + "," + str(data_t[7]) + "," + str(data_t[8])
                     if data_t[4] != "null":
                         with open("../../datasets/tsunami/4/merged.dat_b4.2016", mode="a", encoding="utf-8") as f:
                             f.write(data_t_insert)
+
+print(match_1611220559)
+set(match_1611220559)
+for m1 in match_1611220559:
+    shutil.move(m1,"../../datasets/mag/match_1611220559_3")

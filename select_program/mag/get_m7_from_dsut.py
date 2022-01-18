@@ -3,7 +3,7 @@ import random
 import shutil
 import numpy as np
 
-files=glob.glob("datasets_ud_tohoku/*")
+files=glob.glob("../../datasets/mag/datasets_ud_tohoku/*")
 
 lat_lon=[]
 st_lat_lon=[]
@@ -74,7 +74,7 @@ for file in files:
 for l in range(len(lat_lon)):
     # イギリス方向の赤道面の軸
     xh.append(np.cos(lat_lon[l][1])*np.cos(lat_lon[l][2]))
-    # 統計90度の赤道面の軸
+    # 東経90度の赤道面の軸
     yh.append(np.cos(lat_lon[l][1])*np.sin(lat_lon[l][2]))
     # 北極向きの軸
     zh.append(np.sin(lat_lon[l][1]))
@@ -86,7 +86,7 @@ for l in range(len(lat_lon)):
 for l in range(len(lat_lon)):
     # イギリス方向の赤道面の軸
     xs.append(np.cos(st_lat_lon[l][1])*np.cos(st_lat_lon[l][2]))
-    # 統計90度の赤道面の軸
+    # 東経90度の赤道面の軸
     ys.append(np.cos(st_lat_lon[l][1])*np.sin(st_lat_lon[l][2]))
     # 北極向きの軸
     zs.append(np.sin(st_lat_lon[l][1]))
@@ -138,11 +138,11 @@ i=0
 for file in files:
     for m7 in mags_7:
         if m7[0]==i+1:
-            shutil.copy(file,'datasets_use2')
+            shutil.copy(file,'../../datasets/mag/datasets_use2')
             break
     for m6 in mags_6:
         if m6[0]==i+1:
-            shutil.copy(file,'datasets_use2')
+            shutil.copy(file,'../../datasets/mag/datasets_use2')
             break
     i+=1
 

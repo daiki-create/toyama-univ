@@ -1,8 +1,9 @@
 # 目的：最大振幅から津波の高さを推測（回帰）
 # 入力データ：地震加速度波形の最大振幅・・・バンドパスフィルター済み
-# 　　　　　　訓練：テスト＝８：２
+# 　　　　　　訓練：テスト＝5:5
 # 正解データ：津波の高さ
 # 正解と出力をプロット
+# 2016年福島データ（11ファイルのうち相関のありそうな8ファイル）のみ
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -55,13 +56,13 @@ for t in tsunami_data:
 
 
 # ===========================================================================================================================================
-# 訓練データとテストデータに分ける(訓練：テスト＝８：２)
+# 訓練データとテストデータに分ける(訓練：テスト＝5:5)
 # (リストは配列に変換)
 index = list(range(len(input_data)))
 random.shuffle(index)
 
-index_train = index[:round(len(input_data)*8/10)]
-index_test = index[round(len(input_data)*8/10):]
+index_train = index[:round(len(input_data)*5/10)]
+index_test = index[round(len(input_data)*5/10):]
 
 input_data = np.array(input_data)
 correct_data = np.array(correct_data)
@@ -83,9 +84,8 @@ n_in = len(input_train[0])
 n_mid = 25
 n_out = 1
 wb_width = 0.1
-#下げてみる？
 eta = 0.01
-epoch = 10
+epoch = 1000
 batch_size = 4
 interval = epoch / 10
 
@@ -127,7 +127,6 @@ class OutputLayer(BaseLayer):
         self.grad_w = np.dot(self.x.T ,delta)
         self.grad_b = np.sum(delta ,axis=0)
         self.grad_x = np.dot(delta ,self.w.T)
-        print("Out Back")
 
 
 
