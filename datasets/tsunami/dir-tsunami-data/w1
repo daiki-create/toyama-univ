@@ -1,0 +1,75 @@
+gfortran -Wall -g -O2 -o mk_dataset_seismic_tsunami mk_dataset_seismic_tsunami.F90 \
+-I/home/akatsuma/src \
+/home/akatsuma/obj/prjctn.o        /home/akatsuma/obj/pltak.o \
+/home/akatsuma/obj/timsub.o        /home/akatsuma/obj/calpakk_v.o \
+/home/akatsuma/obj/dgtfilt_d.o     /home/akatsuma/obj/besfilt_d.o \
+/home/akatsuma/obj/tsdtsc.o        /home/akatsuma/obj/trtpsh4_.o  \
+/home/akatsuma/obj/trtime4_.o      /home/akatsuma/obj/getllst2_.o  \
+/home/akatsuma/obj/dtoabc_.o       /home/akatsuma/obj/delta.o \
+/home/akatsuma/obj/sttab3d_.o      /home/akatsuma/obj/quick_sort_fort.o \
+-lm -lc
+mk_dataset_seismic_tsunami.F90:255:16:
+
+             dlt=epdist(dble(th_lat(ith)),dble(th_lon(ith)), &
+                1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:288:19:
+
+                dlt=epdist(dble(th_lat(ith)),dble(th_lon(ith)), &
+                   1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:310:28:
+
+                         dlt=epdist(dble(pstlat(istp)),dble(pstlon(istp)), &
+                            1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:320:38:
+
+                         dlt_sort(ndx)=epdist(dble(hlat(ih)),dble(hlon(ih)), &
+                                      1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:732:21:
+
+          wave(icomp)=wsum/dble(nsum)
+                     1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:738:23:
+
+                   wmax=abs(wvdata2(idat))
+                       1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:763:15:
+
+             yy=yff+yfl/2.0+wvdata2(idat)/wmax*yfl/2.0
+               1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:778:10:
+
+       dlt=epdist(dble(hlat),dble(hlon),dble(stlat),dble(stlon))
+          1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:866:37:
+
+                   vdmax(icomp,ifilt)=abs(wvdata2(idat))
+                                     1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:907:21:
+
+                   yy=yff+yfl/2.0+wvdata2(idat)/wmax*yfl/2.0
+                     1
+Warning: Possible change of value in conversion from REAL(8) to REAL(4) at (1) [-Wconversion]
+mk_dataset_seismic_tsunami.F90:459:35:
+
+                ntst, ist_no,tst_lat,tst_lon,tst_high)
+                                   1
+Warning: Unused dummy argument 'tst_lat' at (1) [-Wunused-dummy-argument]
+mk_dataset_seismic_tsunami.F90:459:43:
+
+                ntst, ist_no,tst_lat,tst_lon,tst_high)
+                                           1
+Warning: Unused dummy argument 'tst_lon' at (1) [-Wunused-dummy-argument]
+mk_dataset_seismic_tsunami.F90:324:0:
+
+                         hval_tsunami(ndx)=h_tsunami
+ 
+Warning: 'h_tsunami' may be used uninitialized in this function [-Wmaybe-uninitialized]
