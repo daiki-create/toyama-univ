@@ -7,7 +7,7 @@ sdata = []
 #sdata = [0] * n_sz
 ndt = 0
 
-f = open('datasets_use/IWT0240508161146.UD', 'r')
+f = open("../../datasets/mag/datasets_test/AKT0010108140511.UD","r")
 
 # datalist = f.readlines()
 # print (datalist[0],end='')
@@ -77,6 +77,9 @@ while True:
         ndt+=1
         if ndt >= n_sz:
           break
+    print(st_lat)
+    print(ev_lat)
+    exit()
     break
 
 f.close()

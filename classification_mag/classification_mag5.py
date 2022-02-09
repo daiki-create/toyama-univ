@@ -7,10 +7,12 @@ import matplotlib.pyplot as plt
 import glob
 import random
 
+from pkg_resources import evaluate_marker
+
 #データ処理
 #拡張子がUDのファイルの震源地、マグニチュードを配列に格納
-# files=glob.glob("../datasets/mag/datasets_ud_tohoku2/*")
-files=glob.glob("../datasets/mag/datasets_test/*")
+files=glob.glob("../datasets/mag/datasets_ud_tohoku2/*")
+# files=glob.glob("../datasets/mag/datasets_test/*")
 n_in=6000
 
 
@@ -22,23 +24,28 @@ i=0
 for file in files:
     # print(file)
     f=open(file,'r')
+    f2 = open("../qgis5.csv","a")
     while True:
         data=f.readline()
         if 'Lat.' in data:
-            ev_lat = float(data[19-1:30])
+            ev_lat = str(data[19-1:30]).splitlines()
+            ev_lat = ev_lat[0]
             # print("lat=",ev_lat)
-            lat_lon.append([i+1,ev_lat,'tmp','tmp'])
+            # lat_lon.append([i+1,ev_lat,'tmp','tmp'])
         elif 'Long.' in data:
-            ev_lon = float(data[19-1:30])
+            ev_lon = data[19-1:30]
             # print("lon=",ev_lon)
-            lat_lon[i][2]=ev_lon
-        elif 'Mag.' in data:
-            mag=float(data[19-1:30])
-            f.close() 
-            # print("mag=",mag)
-            lat_lon[i][3]=mag
-            i+=1
+            # lat_lon[i][2]=ev_lon
+            f2.write(str(ev_lat)+","+str(ev_lon))
             break
+        # elif 'Mag.' in data:
+            # mag=float(data[19-1:30])
+            # f.close() 
+            # print("mag=",mag)
+            # lat_lon[i][3]=mag
+            # i+=1
+            # break
+exit()
 print("len(lat_lon)=",len(lat_lon))
 print("len=",len(lat_lon))
 for ll in lat_lon:

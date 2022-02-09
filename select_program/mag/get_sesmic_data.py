@@ -75,7 +75,7 @@ for file in files:
     f.close()
     if(min_ev_lon <= ev_lon <= max_ev_lon and min_ev_lat <= ev_lat <= max_ev_lat):
         print('東北です!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        shutil.move(file,'../../datasets/mag/datasets_ud_tohoku')
+        shutil.move(file,'../../datasets/mag/datasets_ud_tohoku2/')
     else:
         print('東北じゃない')
         

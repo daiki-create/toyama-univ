@@ -84,11 +84,11 @@ for file in files:
                 # リアス式海岸の場合、振幅を1.5倍とみなす
 
                 # if 42.8 <= st_lat <= 43.2 and 144.0 <= st_lon <= 144.5 :
-                #     tsunami_h = tsunami_h / 10
+                #     tsunami_h = tsunami_h / 3
                 # elif 43.0 <= st_lat <= 43.3 and 144.3 <= st_lon <= 145.2 :
-                #     tsunami_h = tsunami_h / 10
+                #     tsunami_h = tsunami_h / 3
                 # elif 33.5 <= st_lat <= 33.9 and 135.9 <= st_lon <= 136.1 :
-                #     tsunami_h = tsunami_h / 2
+                #     tsunami_h = tsunami_h / 3
                 # elif 38.1 <= st_lat <= 38.5 and 140.8 <= st_lon <= 141.0 :
                 #     tsunami_h = tsunami_h / 3
 
@@ -337,3 +337,59 @@ plt.ylabel("out put")
 plt.xlabel("correct")
 plt.grid(True)
 plt.show()
+
+# =============================================================
+def get_error2(y, t  ):
+    return 1.0 / 2.0 * np.sum(np.square(y - t))
+
+def calc(x):
+    return 100/250*x+20
+
+test_error_x2=[]
+test_error_y2=[]
+count=0
+for i in range(len(correct_y)):
+    error_test = get_error2(calc(correct_y[i][0]),correct_y[i][0]  )
+    test_error_x2.append(i)
+    test_error_y2.append(error_test)
+    count=count+error_test
+
+ave=count/len(correct_y)
+print(ave)
+plt.scatter(test_error_x2,test_error_y2)
+plt.xlabel("Epochs")
+plt.ylabel("Error")
+plt.grid(True)
+plt.show()
+exit()
+
+# ================================================================
+from numpy.linalg import solve
+xval = []
+yval = []
+
+for i in range(len(correct_y)):    
+    xval.append(correct_y[i-1][0])
+    yval.append(output_x[i-1][0])
+#---------------------------------------------------
+a = []
+for i in range(len(xval)):
+    a.append([xval[i], 1.0])
+
+a_arr = np.array(a)
+b_arr = np.dot(a_arr.T , a_arr)
+d_arr = np.dot(a_arr.T,yval)
+m_arr = solve(b_arr,d_arr)
+print("m=",m_arr)
+#---------------------------------------------------
+x_p = np.array([np.min(xval),np.max(xval)])
+y_p = m_arr[0] * x_p + m_arr[1]
+plt.title("data plot")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.plot(xval,yval,"o")
+# plt.savefig("lsqs_fig01.png")
+plt.plot(x_p,y_p,color="red")
+# plt.savefig("lsqs_fig02.png")
+plt.show()
+
